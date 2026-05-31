@@ -36,4 +36,14 @@ public class GameController
 
         _previousKeyboardState = currentKeyboardState;
     }
+    
+    public void Update(float timePassed)
+    {
+        if (_model.IsGameOver)
+        {
+            return;
+        }
+        
+        _model.UpdatePhysics(timePassed);
+    }
 }

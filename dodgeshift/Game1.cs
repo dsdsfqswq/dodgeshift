@@ -36,10 +36,9 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         float timePassed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        
         _controller.ProcessInput();
-        _model.UpdatePhysics(timePassed);
-        
+        _controller.Update(timePassed); 
+    
         if (_model.IsGameOver)
         {
             Exit(); 

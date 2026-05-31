@@ -29,17 +29,37 @@ public class GameView
         _graphicsDevice.Clear(Color.CornflowerBlue);
         _spriteBatch.Begin();
         
-        _spriteBatch.Draw(_blankTexture, _model.Player, Color.Green);
+        foreach (var staticBlock in _model.StaticBlocks)
+        {
+            int screenY = staticBlock.Y - (int)_model.CameraMovement;
+            if (screenY >= -_model.BlockSize && screenY <= _model.WindowHeight)
+            {
+                Rectangle screenRect = new Rectangle(
+                    staticBlock.X, 
+                    screenY, 
+                    staticBlock.Width + 1, 
+                    staticBlock.Height + 1
+                );
+                _spriteBatch.Draw(_blankTexture, screenRect, Color.Yellow);
+            }
+        }
         
         foreach (var fallingBlock in _model.FallingBlocks)
         {
-            _spriteBatch.Draw(_blankTexture, fallingBlock, Color.Red);
+            int screenY = fallingBlock.Y - (int)_model.CameraMovement;
+            
+            Rectangle screenRect = new Rectangle(
+                fallingBlock.X, 
+                screenY, 
+                fallingBlock.Width + 1, 
+                fallingBlock.Height + 1
+            );
+            _spriteBatch.Draw(_blankTexture, screenRect, Color.Red);
         }
         
-        foreach (var staticBlock in _model.StaticBlocks)
-        {
-            _spriteBatch.Draw(_blankTexture, staticBlock, Color.Yellow);
-        }
+        int playerScreenY = _model.Player.Y - (int)_model.CameraMovement;
+        Rectangle playerScreenRect = new Rectangle(_model.Player.X, playerScreenY, _model.Player.Width, _model.Player.Height);
+        _spriteBatch.Draw(_blankTexture, playerScreenRect, Color.Green);
 
         _spriteBatch.End();
     }
