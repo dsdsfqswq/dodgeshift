@@ -16,24 +16,32 @@ public class GameModel
     public int BlockSize { get; } = 40;
     public int GroundLevelY { get; } = 700; 
     
-    private const float GravityForce = 0.8f;
-    private const float JumpImpulse = -16f;
-    private const int MovementSpeed = 6;
+    private const float GravityForce = 45f;       
+    private const float JumpImpulse = -14f;       
+    private const int MovementSpeed = 350;        
     
     private const float SpawnIntervalSeconds = 0.5f; 
-    private const int FallingSpeed = 5;               
+    private const float FallingSpeed = 300f;      
     
     private const int CollisionTolerance = 14;
     private const float CameraSmooth = 0.1f;
     
+    private float _playerExactX;
+    private float _playerExactY;
+    private List<float> _fallingBlocksExactY = new(); 
+
     private float _verticalVelocity;
     private bool _isOnTheFloor;
     private float _spawnTimer;
     private readonly Random _randomGenerator = new();
     private readonly int _columns;
 
+    private int _blocksScore;
+    private int _heightScore;
+
     public bool IsGameOver { get; private set; }
     public float CameraMovement { get; private set; }
+    public int Score => _blocksScore + _heightScore;
 
     public GameModel()
     {
@@ -44,31 +52,41 @@ public class GameModel
     public void Reset()
     {
         CameraMovement = 0;
-        Player = new Rectangle(WindowWidth / 2, GroundLevelY - BlockSize, BlockSize, BlockSize);
+        _blocksScore = 0;
+        _heightScore = 0;
+        _playerExactX = WindowWidth / 2f;
+        _playerExactY = GroundLevelY - BlockSize;
+        Player = new Rectangle((int)_playerExactX, (int)_playerExactY, BlockSize, BlockSize);
+        
         FallingBlocks.Clear();
+        _fallingBlocksExactY.Clear();
         StaticBlocks.Clear();
+        
         _verticalVelocity = 0;
         _isOnTheFloor = true;
         _spawnTimer = 0;
         IsGameOver = false;
     }
     
-    public void MovePlayer(int direction)
+    public void MovePlayer(int direction, float timePassed)
     {
         if (direction == 0) return;
 
-        int oldX = Player.X;
-        Player.X += direction * MovementSpeed;
+        float oldX = _playerExactX;
+        _playerExactX += direction * MovementSpeed * timePassed;
+        Player.X = (int)_playerExactX;
 
         foreach (var staticBlock in StaticBlocks)
         {
             if (Player.Intersects(staticBlock))
             {
-                Player.X = oldX;
+                _playerExactX = oldX;
+                Player.X = (int)_playerExactX;
                 break;
             }
         }
-        Player.X = Math.Clamp(Player.X, 0, WindowWidth - Player.Width);
+        _playerExactX = Math.Clamp(_playerExactX, 0, WindowWidth - Player.Width);
+        Player.X = (int)_playerExactX;
     }
 
     public void TryJump()
@@ -76,18 +94,21 @@ public class GameModel
         if (_isOnTheFloor)
         {
             _verticalVelocity = JumpImpulse;
+            _isOnTheFloor = false;
         }
     }
 
     public void UpdatePhysics(float timePassed)
     {
-        _verticalVelocity += GravityForce;
-        Player.Y += (int)_verticalVelocity;
+        _verticalVelocity += GravityForce * timePassed;
+        _playerExactY += _verticalVelocity;
+        Player.Y = (int)_playerExactY;
 
         _isOnTheFloor = false;
         if (Player.Bottom >= GroundLevelY)
         {
-            Player.Y = GroundLevelY - Player.Height;
+            _playerExactY = GroundLevelY - Player.Height;
+            Player.Y = (int)_playerExactY;
             _verticalVelocity = 0;
             _isOnTheFloor = true;
         }
@@ -96,10 +117,10 @@ public class GameModel
         {
             if (Player.Intersects(staticBlock))
             {
-                if (_verticalVelocity >= 0 &&
-                    Player.Bottom <= staticBlock.Top + (_verticalVelocity + CollisionTolerance))
+                if (_verticalVelocity >= 0 && Player.Bottom <= staticBlock.Top + CollisionTolerance + 5)
                 {
-                    Player.Y = staticBlock.Y - Player.Height;
+                    _playerExactY = staticBlock.Y - Player.Height;
+                    Player.Y = (int)_playerExactY;
                     _verticalVelocity = 0;
                     _isOnTheFloor = true;
                 }
@@ -113,13 +134,16 @@ public class GameModel
             int spawnY = ((int)CameraMovement / BlockSize) * BlockSize - BlockSize;
             
             FallingBlocks.Add(new Rectangle(gridPositionX, spawnY, BlockSize, BlockSize));
+            _fallingBlocksExactY.Add(spawnY); 
             _spawnTimer = 0;
         }
         
         for (int i = 0; i < FallingBlocks.Count; i++)
         {
+            _fallingBlocksExactY[i] += FallingSpeed * timePassed;
+            
             var fallingBlock = FallingBlocks[i];
-            fallingBlock.Y += FallingSpeed;
+            fallingBlock.Y = (int)_fallingBlocksExactY[i];
             FallingBlocks[i] = fallingBlock;
             
             if (fallingBlock.Intersects(Player))
@@ -149,7 +173,10 @@ public class GameModel
 
                 StaticBlocks.Add(fallingBlock);
                 FallingBlocks.RemoveAt(i);
+                _fallingBlocksExactY.RemoveAt(i);
                 i--;
+                
+                _blocksScore += 10;
             }
         }
         
@@ -162,6 +189,12 @@ public class GameModel
         if (Player.Y < screenCenterY)
         {
             CameraMovement += (Player.Y - screenCenterY) * CameraSmooth;
+        }
+        
+        int currentHeightScore = (int)Math.Max(0, -CameraMovement);
+        if (currentHeightScore > _heightScore)
+        {
+            _heightScore = currentHeightScore;
         }
         
         if (Player.Y > WindowHeight + CameraMovement)

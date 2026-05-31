@@ -1,4 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using System;
+using Microsoft.Xna.Framework.Graphics; 
 
 namespace dodgeshift;
 
@@ -22,6 +25,9 @@ public class Game1 : Game
         _graphics.PreferredBackBufferWidth = _model.WindowWidth;
         _graphics.PreferredBackBufferHeight = _model.WindowHeight;
         _graphics.ApplyChanges();
+
+        IsFixedTimeStep = true;
+        TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
         
         _controller = new GameController(_model);
         _view = new GameView(_model, GraphicsDevice);
@@ -30,19 +36,26 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
-        _view.LoadContent();
+        SpriteFont gameFont = Content.Load<SpriteFont>("scoreFont");
+        _view.LoadContent(gameFont);
     }
 
     protected override void Update(GameTime gameTime)
     {
         float timePassed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        _controller.ProcessInput();
-        _controller.Update(timePassed); 
-    
+
         if (_model.IsGameOver)
         {
-            Exit(); 
+            if (Keyboard.GetState().IsKeyDown(Keys.R))
+            {
+                _model.Reset();
+            }
+            base.Update(gameTime);
+            return;
         }
+
+        _controller.ProcessInput();
+        _controller.Update(timePassed); 
 
         base.Update(gameTime);
     }

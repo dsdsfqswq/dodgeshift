@@ -32,3 +32,4 @@ C:\Users\NPDer\RiderProjects\dodgeshift\dodgeshift\obj\Debug\net9.0\dodgeshift.p
 C:\Users\NPDer\RiderProjects\dodgeshift\dodgeshift\obj\Debug\net9.0\dodgeshift.genruntimeconfig.cache
 C:\Users\NPDer\RiderProjects\dodgeshift\dodgeshift\obj\Debug\net9.0\ref\dodgeshift.dll
 C:\Users\NPDer\RiderProjects\dodgeshift\dodgeshift\obj\Debug\net9.0\dodgeshift.sourcelink.json
+C:\Users\NPDer\RiderProjects\dodgeshift\dodgeshift\bin\Debug\net9.0\Content\scoreFont.xnb
