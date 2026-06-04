@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dodgeshift")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf0c211ffe038d3670bc98d63408e1592dc408a3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57174a6a8fc5eb0b6f91686d2c9ff51d8895cfa5")]
 [assembly: System.Reflection.AssemblyProductAttribute("dodgeshift")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dodgeshift")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
