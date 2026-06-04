@@ -31,14 +31,19 @@ public class GameController
             return;
         }
 
-        var currentKeyboardState = Keyboard.GetState();
         int horizontalMove = 0;
 
-        if (currentKeyboardState.IsKeyDown(Keys.A)) horizontalMove -= 1;
-        if (currentKeyboardState.IsKeyDown(Keys.D)) horizontalMove += 1;
+        if (_previousKeyboardState.IsKeyDown(Keys.A))
+        {
+            horizontalMove -= 1;
+        }
+
+        if (_previousKeyboardState.IsKeyDown(Keys.D))
+        {
+            horizontalMove += 1;
+        }
         
         _model.MovePlayer(horizontalMove, timePassed);
-        
         _model.UpdatePhysics(timePassed);
     }
 }

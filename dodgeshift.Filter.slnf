@@ -1,0 +1,8 @@
+﻿{
+  "solution": {
+    "path": "dodgeshift.sln",
+    "projects": [
+      "dodgeshift\\dodgeshift.csproj"
+    ]
+  }
+}

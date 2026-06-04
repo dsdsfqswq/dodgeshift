@@ -32,44 +32,60 @@ public class GameView
         
         foreach (var staticBlock in _model.StaticBlocks)
         {
-            int screenY = staticBlock.Y - (int)_model.CameraMovement;
+            int screenY = staticBlock.Rect.Y - (int)_model.CameraMovement;
             if (screenY >= -_model.BlockSize && screenY <= _model.WindowHeight)
             {
                 Rectangle screenRect = new Rectangle(
-                    staticBlock.X, 
+                    staticBlock.Rect.X, 
                     screenY, 
-                    staticBlock.Width + 1, 
-                    staticBlock.Height + 1
+                    staticBlock.Rect.Width, 
+                    staticBlock.Rect.Height
                 );
-                _spriteBatch.Draw(_blankTexture, screenRect, Color.Yellow);
+                
+                Color blockColor = staticBlock.Type switch
+                {
+                    BlockType.ShieldBonus => Color.Blue,
+                    _ => Color.Yellow
+                };
+                
+                _spriteBatch.Draw(_blankTexture, screenRect, blockColor);
             }
         }
         
         foreach (var fallingBlock in _model.FallingBlocks)
         {
-            int screenY = fallingBlock.Y - (int)_model.CameraMovement;
+            int screenY = fallingBlock.Rect.Y - (int)_model.CameraMovement;
             
             Rectangle screenRect = new Rectangle(
-                fallingBlock.X, 
+                fallingBlock.Rect.X, 
                 screenY, 
-                fallingBlock.Width + 1, 
-                fallingBlock.Height + 1
+                fallingBlock.Rect.Width, 
+                fallingBlock.Rect.Height
             );
-            _spriteBatch.Draw(_blankTexture, screenRect, Color.Red);
+            
+            Color blockColor = fallingBlock.Type switch
+            {
+                BlockType.ShieldBonus => Color.Blue,
+                _ => Color.Red
+            };
+            
+            _spriteBatch.Draw(_blankTexture, screenRect, blockColor);
         }
         
         int playerScreenY = _model.Player.Y - (int)_model.CameraMovement;
         Rectangle playerScreenRect = new Rectangle(_model.Player.X, playerScreenY, _model.Player.Width, _model.Player.Height);
-        _spriteBatch.Draw(_blankTexture, playerScreenRect, Color.Green);
+        
+        Color playerColor = _model.IsShielded ? Color.Cyan : Color.Green;
+        _spriteBatch.Draw(_blankTexture, playerScreenRect, playerColor);
 
-        _spriteBatch.DrawString(_font, $"Score: {_model.Score}", new Vector2(20, 20), Color.White);
+        _spriteBatch.DrawString(_font, $"Score: {_model.Score}  Best: {_model.HighScore}", new Vector2(20, 20), Color.White);
 
         if (_model.IsGameOver)
         {
             Rectangle overlay = new Rectangle(0, 0, _model.WindowWidth, _model.WindowHeight);
             _spriteBatch.Draw(_blankTexture, overlay, new Color(Color.Black, 0.6f));
             
-            string gameOverText = $"GAME OVER\nFinal Score: {_model.Score}\nPress R to Restart";
+            string gameOverText = $"GAME OVER\nFinal Score: {_model.Score}\nBest Score: {_model.HighScore}\nPress R to Restart";
             Vector2 textSize = _font.MeasureString(gameOverText);
             Vector2 textPosition = new Vector2(
                 (_model.WindowWidth - textSize.X) / 2,
